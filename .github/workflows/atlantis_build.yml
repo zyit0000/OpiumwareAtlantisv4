@@ -23,6 +23,9 @@ jobs:
             args: "--target aarch64-apple-darwin"
             arch: ARM
           - platform: macos-latest
+            args: "--target x86_64-apple-darwin"
+            arch: "10.15"
+          - platform: macos-latest
             args: "--target universal-apple-darwin"
             arch: Universal
           - platform: windows-latest
@@ -47,6 +50,15 @@ jobs:
           targets: >-
             ${{ matrix.platform == 'macos-latest' && 'x86_64-apple-darwin,aarch64-apple-darwin' ||
             matrix.platform == 'windows-latest' && 'x86_64-pc-windows-msvc,aarch64-pc-windows-msvc' || '' }}
+
+      - name: configure macOS 10.15 build
+        if: matrix.arch == '10.15'
+        shell: bash
+        run: |
+          sed -i 's/"productName": "Atlantis"/"productName": "Atlantis-10.15"/g' src-tauri/tauri.conf.json
+          sed -i 's/"minimumSystemVersion": "11.0"/"minimumSystemVersion": "10.15"/g' src-tauri/tauri.conf.json
+          sed -i 's/window.USE_ACE = false;/window.USE_ACE = true;/g' src/index.html
+          echo "MACOSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
 
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'

@@ -46,7 +46,11 @@ class TabManager {
         
         // Load content into editor if available
         if (window.monacoEditor) {
-            window.monacoEditor.setValue(tab.content);
+            if (window.USE_ACE) {
+                window.monacoEditor.setValue(tab.content, -1);
+            } else {
+                window.monacoEditor.setValue(tab.content);
+            }
         }
         
         return tabId;
@@ -112,7 +116,11 @@ class TabManager {
         // Load new tab content
         const tab = this.tabs.find(t => t.id === tabId);
         if (tab && window.monacoEditor) {
-            window.monacoEditor.setValue(tab.content);
+            if (window.USE_ACE) {
+                window.monacoEditor.setValue(tab.content, -1);
+            } else {
+                window.monacoEditor.setValue(tab.content);
+            }
         }
         
         this.saveTabs();
@@ -154,7 +162,11 @@ class EditorManager {
     }
 
     async init() {
-        await this.loadMonaco();
+        if (window.USE_ACE) {
+            await this.loadAce();
+        } else {
+            await this.loadMonaco();
+        }
         this.setupEditor();
         this.setupEventListeners();
     }
@@ -183,23 +195,52 @@ class EditorManager {
         });
     }
 
+    loadAce() {
+        return new Promise((resolve) => {
+            if (window.ace) {
+                resolve();
+                return;
+            }
+            
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/ace.js';
+            script.onload = () => {
+                resolve();
+            };
+            document.head.appendChild(script);
+        });
+    }
+
     setupEditor() {
         const container = document.getElementById('monaco-container');
         if (!container) {
-            console.error('Monaco container not found');
+            console.error('Editor container not found');
             return;
         }
         
-        this.editor = monaco.editor.create(container, {
-            value: 'print("Get Velocity Today")',
-            language: 'python',
-            theme: 'vs-dark',
-            automaticLayout: true,
-            fontSize: 14,
-            fontFamily: "'Consolas', 'Monaco', 'Courier New', monospace",
-            minimap: { enabled: true },
-            lineNumbers: 'on'
-        });
+        if (window.USE_ACE) {
+            this.editor = ace.edit(container);
+            this.editor.setTheme("ace/theme/tomorrow_night_eighties");
+            this.editor.session.setMode("ace/mode/python");
+            this.editor.setOptions({
+                fontSize: "14px",
+                fontFamily: "'Consolas', 'Monaco', 'Courier New', monospace",
+                showPrintMargin: false,
+                useWorker: false // Disable worker to avoid cross-domain issues with CDN
+            });
+            this.editor.setValue('print("Get Velocity Today")', -1);
+        } else {
+            this.editor = monaco.editor.create(container, {
+                value: 'print("Get Velocity Today")',
+                language: 'python',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                fontSize: 14,
+                fontFamily: "'Consolas', 'Monaco', 'Courier New', monospace",
+                minimap: { enabled: true },
+                lineNumbers: 'on'
+            });
+        }
         
         window.monacoEditor = this.editor;
     }
@@ -264,11 +305,23 @@ class EditorManager {
         if (this.isMinimized) {
             if (notice) notice.classList.remove('hidden');
             if (editorContent) editorContent.style.display = 'none';
-            if (this.editor) this.editor.layout({ width: 0, height: 0 });
+            if (this.editor) {
+                if (window.USE_ACE) {
+                    // Ace doesn't really have a layout(0,0) equivalent that hides it like this
+                } else {
+                    this.editor.layout({ width: 0, height: 0 });
+                }
+            }
         } else {
             if (notice) notice.classList.add('hidden');
             if (editorContent) editorContent.style.display = 'flex';
-            if (this.editor) this.editor.layout();
+            if (this.editor) {
+                if (window.USE_ACE) {
+                    this.editor.resize();
+                } else {
+                    this.editor.layout();
+                }
+            }
         }
     }
 
