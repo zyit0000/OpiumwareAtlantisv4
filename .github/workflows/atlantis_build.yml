@@ -41,9 +41,19 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MACOSX_DEPLOYMENT_TARGET: "11.0"
         with:
           tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
           releaseName: 'Atlantis v__VERSION__'
           releaseBody: 'See the assets to download this version.'
           releaseDraft: true
           prerelease: false
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Atlantis-${{ matrix.platform }}
+          path: |
+            src-tauri/target/release/bundle/dmg/*.dmg
+            src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/setup.exe
