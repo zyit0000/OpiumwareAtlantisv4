@@ -55,9 +55,9 @@ jobs:
         if: matrix.arch == '10.15'
         shell: bash
         run: |
-          sed -i 's/"productName": "Atlantis"/"productName": "Atlantis-10.15"/g' src-tauri/tauri.conf.json
-          sed -i 's/"minimumSystemVersion": "11.0"/"minimumSystemVersion": "10.15"/g' src-tauri/tauri.conf.json
-          sed -i 's/window.USE_ACE = false;/window.USE_ACE = true;/g' src/index.html
+          sed -i '' 's/"productName": "Atlantis"/"productName": "Atlantis-10.15"/g' src-tauri/tauri.conf.json
+          sed -i '' 's/"minimumSystemVersion": "11.0"/"minimumSystemVersion": "10.15"/g' src-tauri/tauri.conf.json
+          sed -i '' 's/window.USE_ACE = false;/window.USE_ACE = true;/g' src/index.html
           echo "MACOSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
 
       - name: install dependencies (ubuntu only)
