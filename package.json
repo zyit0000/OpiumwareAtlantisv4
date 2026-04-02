@@ -1,0 +1,20 @@
+{
+  "name": "atlantis",
+  "version": "0.1.4",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "vite": "^6.4.1",
+    "@tauri-apps/cli": "^2.0.0-alpha.15",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.0.0-alpha.11"
+  }
+}
