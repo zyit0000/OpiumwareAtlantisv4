@@ -650,6 +650,23 @@ fn set_window_size(window: tauri::Window, width: f64, height: f64) {
     let size = tauri::LogicalSize::new(width, height);
     window.set_size(size).expect("Failed to set window size");
 }
+
+#[tauri::command]
+fn get_editor_type() -> String {
+    // Runtime detection for macOS 10.15 (Catalina)
+    // Monaco has issues on older WebViews, so we fallback to Ace
+    if let Some(name) = System::name() {
+        let name_lower = name.to_lowercase();
+        if name_lower.contains("macos") || name_lower.contains("darwin") {
+            if let Some(version) = System::os_version() {
+                if version.contains("10.15") {
+                    return "ace".to_string();
+                }
+            }
+        }
+    }
+    "monaco".to_string()
+}
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
@@ -689,6 +706,7 @@ fn main() {
             set_window_size,
             attach,
             get_key,
+            get_editor_type,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
