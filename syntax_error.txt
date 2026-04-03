@@ -1,9 +1,0 @@
-C:\Users\ajeff\Downloads\atlantis_tauri_ui (1)\script3.cjs:2316
-                    });
-                     ^
-
-SyntaxError: Unexpected token ')'
-    at wrapSafe (node:internal/modules/cjs/loader:1692:18)
-    at checkSyntax (node:internal/main/check_syntax:76:3)
-
-Node.js v24.11.1
